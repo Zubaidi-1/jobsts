@@ -1,30 +1,30 @@
 "use client";
-import { loginSchema, LoginFormType } from "@/schemas/auth.schema";
-import { login } from "@/services/auth";
+import { registerSchema, RegisterFormType } from "@/schemas/auth.schema";
+import { registerUser } from "@/services/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-export default function Login() {
+export default function Signup() {
+  // ! Error Handling
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const router = useRouter();
+
+  // *  Form Handling
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormType>({ resolver: zodResolver(loginSchema) });
+  } = useForm<RegisterFormType>({ resolver: zodResolver(registerSchema) });
 
-  const onSubmit: SubmitHandler<LoginFormType> = async (values) => {
-    setErrorMessage(null);
-
-    const { error } = await login(values.email, values.password);
+  const onSubmit: SubmitHandler<RegisterFormType> = async (values) => {
+    const { error } = await registerUser(values.email, values.password);
     if (error) {
       setErrorMessage(error.message);
       return;
     }
-    router.push("/");
+    alert("الرجاء التحقق من بريدك الالكتروني لأستكمال الأنشاء");
+    setErrorMessage(null);
   };
 
   return (
@@ -35,7 +35,7 @@ export default function Login() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
         {/* Title */}
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-[#5D2E46]">تسجيل الدخول</h1>
+          <h1 className="text-2xl font-bold text-[#5D2E46]">انشاء حساب</h1>
         </div>
         {errorMessage && (
           <p className="text-red-500 text-sm text-center">{errorMessage}</p>
@@ -53,8 +53,10 @@ export default function Login() {
               placeholder="example@example.com"
               className="rounded-lg border border-gray-300 text-[#5D2E46] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5D2E46] focus:border-transparent transition"
             />
-            {errors.email && (
+            {errors.email ? (
               <p className="text-red-500 text-xs">{errors.email.message}</p>
+            ) : (
+              ""
             )}
           </div>
 
@@ -69,19 +71,29 @@ export default function Login() {
               placeholder="********"
               className="rounded-lg border text-[#5D2E46] border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5D2E46] focus:border-transparent transition"
             />
-            {errors.password && (
+            {errors.password ? (
               <p className="text-red-500 text-xs">{errors.password.message}</p>
+            ) : (
+              ""
             )}
           </div>
-
-          {/* Forgot Password */}
-          <div className="text-left">
-            <a
-              href="#"
-              className="text-sm text-[#5D2E46] hover:underline font-medium"
-            >
-              هل نسيت كلمة المرور؟
-            </a>
+          <div className="flex flex-col gap-1 ">
+            <label className="text-sm font-medium text-gray-700">
+              تأكيد كلمة المرور
+            </label>
+            <input
+              {...register("confirm_password")}
+              type="password"
+              placeholder="********"
+              className="rounded-lg border text-[#5D2E46] border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5D2E46] focus:border-transparent transition"
+            />
+            {errors.confirm_password ? (
+              <p className="text-red-500 text-xs">
+                {errors.confirm_password.message}
+              </p>
+            ) : (
+              ""
+            )}
           </div>
 
           {/* Submit Button */}
@@ -90,7 +102,7 @@ export default function Login() {
             type="submit"
             className="w-full bg-[#5D2E46] text-white py-2.5 rounded-lg font-medium hover:bg-[#4b2338] transition duration-200"
           >
-            تسجيل الدخول
+            انشاء حساب{" "}
           </button>
         </form>
 
@@ -99,12 +111,12 @@ export default function Login() {
 
         {/* Register Link */}
         <p className="text-sm text-center text-gray-600">
-          ليس لديك حساب؟{" "}
+          لديك حساب؟{" "}
           <Link
-            href="/register"
+            href="/login"
             className="text-[#5D2E46] font-semibold hover:underline"
           >
-            إنشاء حساب جديد
+            تسجيل دخول
           </Link>
         </p>
       </div>
